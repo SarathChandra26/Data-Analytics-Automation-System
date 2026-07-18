@@ -226,9 +226,9 @@ B.Tech Computer Science Engineering
 
 SRM Institute of Science and Technology, AP
 
-GitHub: https://github.com/yourusername
+GitHub: https://github.com/SarathChandra26
 
-LinkedIn: https://linkedin.com/in/yourprofile
+LinkedIn: linkedin.com/in/sarath-chandra-ummadishetty-081426291
 
 ---
 
