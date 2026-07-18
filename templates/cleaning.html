@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+
+{% block title %}Data Cleaning - DA Automation System (DAAS){% endblock %}
+
+{% block header_title %}Data Cleaning Engine{% endblock %}
+{% block header_subtitle %}Automated deduplication, null handling, and type normalization{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0 fade-in">
+    <!-- Dataset Header Panel -->
+    <div class="card-custom mb-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <h5 class="m-0"><i class="bi bi-stars text-primary me-2"></i>{{ dataset.dataset_name }}</h5>
+                <small class="text-muted-custom">
+                    File: {{ dataset.original_filename }} &bull; Casing Rule: {{ summary.casing_rule|capitalize }}
+                </small>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <span class="status-indicator completed px-3 py-2">
+                    <i class="bi bi-check-circle-fill"></i> Cleaning Completed
+                </span>
+                <a href="{{ url_for('cleaning.download', uuid=dataset.uuid) }}" class="btn-custom btn-custom-secondary btn-custom-sm">
+                    <i class="bi bi-download"></i> Download Cleaned CSV
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- KPI Row -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4 col-lg-2">
+            <div class="card-custom card-custom-hover">
+                <div class="card-title-custom">Rows Before</div>
+                <div class="card-value-custom">{{ summary.original_rows }}</div>
+                <div class="card-desc-custom">Raw dataset rows</div>
+            </div>
+        </div>
+        <div class="col-md-4 col-lg-2">
+            <div class="card-custom card-custom-hover">
+                <div class="card-title-custom">Rows After</div>
+                <div class="card-value-custom text-success">{{ summary.cleaned_rows }}</div>
+                <div class="card-desc-custom">Cleaned dataset rows</div>
+            </div>
+        </div>
+        <div class="col-md-4 col-lg-2">
+            <div class="card-custom card-custom-hover">
+                <div class="card-title-custom">Empty Rows Removed</div>
+                <div class="card-value-custom {% if summary.empty_rows_removed %}text-warning{% endif %}">{{ summary.empty_rows_removed }}</div>
+                <div class="card-desc-custom">Fully blank records</div>
+            </div>
+        </div>
+        <div class="col-md-4 col-lg-2">
+            <div class="card-custom card-custom-hover">
+                <div class="card-title-custom">Duplicates Removed</div>
+                <div class="card-value-custom {% if summary.duplicates_removed %}text-warning{% endif %}">{{ summary.duplicates_removed }}</div>
+                <div class="card-desc-custom">Based on primary key</div>
+            </div>
+        </div>
+        <div class="col-md-4 col-lg-2">
+            <div class="card-custom card-custom-hover">
+                <div class="card-title-custom">Missing Values Handled</div>
+                <div class="card-value-custom {% if summary.nulls_filled %}text-warning{% else %}text-success{% endif %}">{{ summary.nulls_filled }}</div>
+                <div class="card-desc-custom">Imputed cells</div>
+            </div>
+        </div>
+        <div class="col-md-4 col-lg-2">
+            <div class="card-custom card-custom-hover">
+                <div class="card-title-custom">Type Conversions</div>
+                <div class="card-value-custom text-primary">{{ summary.numeric_conversions|length + summary.date_columns_standardized|length }}</div>
+                <div class="card-desc-custom">Numeric &amp; date columns</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Left: Missing Value Actions -->
+        <div class="col-lg-6">
+            <div class="card-custom mb-4">
+                <h6 class="mb-3"><i class="bi bi-bandaid-fill text-primary me-2"></i>Missing Value Handling</h6>
+                {% if not summary.missing_value_actions %}
+                <div class="alert alert-success bg-dark border-success text-success m-0" style="font-size: 13px;">
+                    <i class="bi bi-check-circle-fill me-2"></i> No missing values detected in the raw dataset.
+                </div>
+                {% else %}
+                <div class="d-flex flex-column gap-2" style="max-height: 300px; overflow-y: auto;">
+                    {% for col, action in summary.missing_value_actions.items() %}
+                    <div class="border border-secondary rounded p-2 d-flex justify-content-between align-items-center" style="font-size: 13px;">
+                        <span class="fw-semibold text-light">{{ col }}</span>
+                        <span class="text-muted-custom">{{ action }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Data Type Conversions -->
+            <div class="card-custom">
+                <h6 class="mb-3"><i class="bi bi-braces-asterisk text-primary me-2"></i>Data Type Conversions</h6>
+                <div class="row g-3">
+                    <div class="col-6">
+                        <div class="card bg-dark border-secondary p-3">
+                            <span class="text-muted-custom" style="font-size: 11px; text-transform: uppercase;">Numeric Columns Converted</span>
+                            {% if summary.numeric_conversions %}
+                            <div class="mt-2 d-flex flex-wrap gap-1">
+                                {% for col in summary.numeric_conversions %}
+                                <span class="badge-custom badge-custom-neutral">{{ col }}</span>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <div class="text-muted-custom mt-2" style="font-size: 12px;">None required</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card bg-dark border-secondary p-3">
+                            <span class="text-muted-custom" style="font-size: 11px; text-transform: uppercase;">Date Columns Standardized</span>
+                            {% if summary.date_columns_standardized %}
+                            <div class="mt-2 d-flex flex-wrap gap-1">
+                                {% for col in summary.date_columns_standardized %}
+                                <span class="badge-custom badge-custom-neutral">{{ col }} &rarr; ISO 8601</span>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <div class="text-muted-custom mt-2" style="font-size: 12px;">None required</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Summary Overview -->
+        <div class="col-lg-6">
+            <div class="card-custom h-100">
+                <h6 class="mb-3"><i class="bi bi-clipboard-data-fill text-primary me-2"></i>Cleaning Operations Applied</h6>
+                <ul class="list-group list-group-flush bg-transparent">
+                    <li class="list-group-item bg-transparent border-secondary text-light d-flex align-items-center gap-2" style="font-size: 13.5px;">
+                        <i class="bi bi-check-circle-fill text-success"></i> Removed {{ summary.empty_rows_removed }} completely empty row(s)
+                    </li>
+                    <li class="list-group-item bg-transparent border-secondary text-light d-flex align-items-center gap-2" style="font-size: 13.5px;">
+                        <i class="bi bi-check-circle-fill text-success"></i> Removed {{ summary.duplicates_removed }} duplicate row(s)
+                    </li>
+                    <li class="list-group-item bg-transparent border-secondary text-light d-flex align-items-center gap-2" style="font-size: 13.5px;">
+                        <i class="bi bi-check-circle-fill text-success"></i> Trimmed whitespace across {{ summary.text_columns_cleaned|length }} text column(s)
+                    </li>
+                    <li class="list-group-item bg-transparent border-secondary text-light d-flex align-items-center gap-2" style="font-size: 13.5px;">
+                        <i class="bi bi-check-circle-fill text-success"></i> Normalized text casing ({{ summary.casing_rule }})
+                    </li>
+                    <li class="list-group-item bg-transparent border-secondary text-light d-flex align-items-center gap-2" style="font-size: 13.5px;">
+                        <i class="bi bi-check-circle-fill text-success"></i> Converted {{ summary.numeric_conversions|length }} numeric column(s) safely
+                    </li>
+                    <li class="list-group-item bg-transparent border-secondary text-light d-flex align-items-center gap-2" style="font-size: 13.5px;">
+                        <i class="bi bi-check-circle-fill text-success"></i> Standardized {{ summary.date_columns_standardized|length }} date column(s)
+                    </li>
+                    <li class="list-group-item bg-transparent border-secondary text-light d-flex align-items-center gap-2" style="font-size: 13.5px;">
+                        <i class="bi bi-check-circle-fill text-success"></i> Handled {{ summary.nulls_filled }} missing value(s)
+                    </li>
+                </ul>
+                <div class="mt-3 text-muted-custom" style="font-size: 12px;">
+                    Cleaned file saved to: <code class="text-secondary-custom">{{ summary.cleaned_filepath }}</code>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Wizard Steps Action Bar -->
+    <div class="card-custom mt-4 d-flex justify-content-between align-items-center">
+        <a href="{{ url_for('validation.details', uuid=dataset.uuid) }}" class="btn-custom btn-custom-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Validation
+        </a>
+        <a href="{{ url_for('transformation.details', uuid=dataset.uuid) }}" class="btn-custom btn-custom-primary">
+            Proceed to Transformation <i class="bi bi-arrow-right"></i>
+        </a>
+    </div>
+</div>
+{% endblock %}

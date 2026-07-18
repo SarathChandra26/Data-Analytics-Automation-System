@@ -1,0 +1,11 @@
+order_id,transaction_date,customer,product,category,quantity,unit_price,revenue,region,unit_price_formatted,revenue_formatted,revenue_pct_of_total,year,month,month_name,quarter,day_of_week
+1001,2026-01-05,Alice,Laptop,Electronics,2,55000,110000,South,"$55,000.00","$110,000.00",43.34,2026,1,January,Q1,Monday
+1002,2026-01-06,Bob,Mouse,Accessories,5,500,2500,North,$500.00,"$2,500.00",0.99,2026,1,January,Q1,Tuesday
+1003,2026-01-07,Charlie,Keyboard,Accessories,3,1200,3600,East,"$1,200.00","$3,600.00",1.42,2026,1,January,Q1,Wednesday
+1004,2026-01-08,David,Monitor,Electronics,1,15000,15000,West,"$15,000.00","$15,000.00",5.91,2026,1,January,Q1,Thursday
+1005,2026-01-09,Eva,Printer,Electronics,2,9000,18000,South,"$9,000.00","$18,000.00",7.09,2026,1,January,Q1,Friday
+1006,2026-01-10,Frank,Headphones,Accessories,4,1800,7200,North,"$1,800.00","$7,200.00",2.84,2026,1,January,Q1,Saturday
+1007,2026-01-11,Grace,Webcam,Accessories,2,2500,5000,East,"$2,500.00","$5,000.00",1.97,2026,1,January,Q1,Sunday
+1008,2026-01-12,Henry,Laptop,Electronics,1,60000,60000,West,"$60,000.00","$60,000.00",23.64,2026,1,January,Q1,Monday
+1009,2026-01-13,Ivy,Monitor,Electronics,2,14000,28000,South,"$14,000.00","$28,000.00",11.03,2026,1,January,Q1,Tuesday
+1010,2026-01-14,Jack,Mouse,Accessories,10,450,4500,North,$450.00,"$4,500.00",1.77,2026,1,January,Q1,Wednesday

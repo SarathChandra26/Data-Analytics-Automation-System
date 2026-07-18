@@ -1,0 +1,122 @@
+{
+    "row_count": 10,
+    "column_count": 17,
+    "missing_percentage": 0.0,
+    "missing_cells": 0,
+    "revenue_metrics": {
+        "available": true,
+        "column_used": "revenue",
+        "total_revenue": 253800.0,
+        "average_revenue": 25380.0,
+        "max_revenue": 110000.0,
+        "min_revenue": 2500.0
+    },
+    "sales_metrics": {
+        "available": true,
+        "column_used": "quantity",
+        "total_units_sold": 32.0,
+        "average_units_sold": 3.2,
+        "max_units_sold": 10.0,
+        "min_units_sold": 1.0
+    },
+    "top_categories": [
+        {
+            "category": "Electronics",
+            "value": 231000.0,
+            "metric": "revenue",
+            "percentage": 91.02
+        },
+        {
+            "category": "Accessories",
+            "value": 22800.0,
+            "metric": "revenue",
+            "percentage": 8.98
+        }
+    ],
+    "category_column_used": "category",
+    "monthly_trends": [
+        {
+            "month": "2026-01",
+            "value": 253800.0,
+            "metric": "revenue"
+        }
+    ],
+    "date_column_used": "transaction_date",
+    "summary_statistics": {
+        "order_id": {
+            "sum": 10055.0,
+            "mean": 1005.5,
+            "median": 1005.5,
+            "std_dev": 3.03,
+            "min": 1001.0,
+            "max": 1010.0,
+            "count": 10
+        },
+        "quantity": {
+            "sum": 32.0,
+            "mean": 3.2,
+            "median": 2.0,
+            "std_dev": 2.7,
+            "min": 1.0,
+            "max": 10.0,
+            "count": 10
+        },
+        "unit_price": {
+            "sum": 159450.0,
+            "mean": 15945.0,
+            "median": 5750.0,
+            "std_dev": 22597.82,
+            "min": 450.0,
+            "max": 60000.0,
+            "count": 10
+        },
+        "revenue": {
+            "sum": 253800.0,
+            "mean": 25380.0,
+            "median": 11100.0,
+            "std_dev": 34492.92,
+            "min": 2500.0,
+            "max": 110000.0,
+            "count": 10
+        },
+        "revenue_pct_of_total": {
+            "sum": 100.0,
+            "mean": 10.0,
+            "median": 4.38,
+            "std_dev": 13.59,
+            "min": 0.99,
+            "max": 43.34,
+            "count": 10
+        },
+        "year": {
+            "sum": 20260.0,
+            "mean": 2026.0,
+            "median": 2026.0,
+            "std_dev": 0.0,
+            "min": 2026.0,
+            "max": 2026.0,
+            "count": 10
+        },
+        "month": {
+            "sum": 10.0,
+            "mean": 1.0,
+            "median": 1.0,
+            "std_dev": 0.0,
+            "min": 1.0,
+            "max": 1.0,
+            "count": 10
+        }
+    },
+    "numeric_columns": [
+        "order_id",
+        "quantity",
+        "unit_price",
+        "revenue",
+        "revenue_pct_of_total",
+        "year",
+        "month"
+    ],
+    "source_filepath": "E:\\DataFlowAI\\uploads\\transformed\\7b9cbd1d-71b4-4386-89a6-6f77018386d4\\sales_test.csv",
+    "source_stage": "Transformation",
+    "generated_at": "2026-07-18 19:39:17"
+}

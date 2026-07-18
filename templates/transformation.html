@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Data Transformation - DA Automation System (DAAS){% endblock %}
+
+{% block header_title %}Data Transformation Engine{% endblock %}
+{% block header_subtitle %}Standardized business rules, calculated fields, and feature extraction{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0 fade-in">
+    <!-- Dataset Header Panel -->
+    <div class="card-custom mb-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <h5 class="m-0"><i class="bi bi-arrow-left-right text-primary me-2"></i>{{ dataset.dataset_name }}</h5>
+                <small class="text-muted-custom">
+                    File: {{ dataset.original_filename }} &bull; {{ summary.row_count }} rows &bull; {{ summary.final_columns|length }} columns
+                </small>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <span class="status-indicator completed px-3 py-2">
+                    <i class="bi bi-check-circle-fill"></i> Transformation Completed
+                </span>
+                <a href="{{ url_for('transformation.download', uuid=dataset.uuid) }}" class="btn-custom btn-custom-secondary btn-custom-sm">
+                    <i class="bi bi-download"></i> Download Transformed CSV
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Left: Column Comparison -->
+        <div class="col-lg-5">
+            <div class="card-custom mb-4">
+                <h6 class="mb-3"><i class="bi bi-list-columns-reverse text-primary me-2"></i>Original Columns</h6>
+                <div class="d-flex flex-wrap gap-1">
+                    {% for col in summary.original_columns %}
+                    <span class="badge-custom badge-custom-neutral">{{ col }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="card-custom mb-4">
+                <h6 class="mb-3"><i class="bi bi-plus-square-fill text-primary me-2"></i>New Columns Created</h6>
+                {% if not summary.new_columns %}
+                <div class="text-muted-custom" style="font-size: 13px;">No new columns were created.</div>
+                {% else %}
+                <div class="d-flex flex-wrap gap-1">
+                    {% for col in summary.new_columns %}
+                    <span class="badge-custom badge-custom-success">{{ col }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="card-custom">
+                <h6 class="mb-3"><i class="bi bi-check2-all text-primary me-2"></i>Transformations Applied</h6>
+                <ul class="list-group list-group-flush bg-transparent">
+                    {% for t in summary.transformations_applied %}
+                    <li class="list-group-item bg-transparent border-secondary text-light d-flex align-items-start gap-2" style="font-size: 13px;">
+                        <i class="bi bi-check-circle-fill text-success mt-1"></i> {{ t }}
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Right: Preview of transformed dataset -->
+        <div class="col-lg-7">
+            <div class="card-custom h-100">
+                <h6 class="mb-3"><i class="bi bi-table text-primary me-2"></i>Transformed Dataset Preview <span class="text-muted-custom" style="font-size: 12px;">(first 10 rows)</span></h6>
+                <div class="table-responsive" style="max-height: 560px; overflow: auto;">
+                    <table class="table-custom">
+                        <thead>
+                            <tr>
+                                {% for h in summary.preview_headers %}
+                                <th style="white-space: nowrap;">{{ h }}</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in summary.preview_rows %}
+                            <tr>
+                                {% for h in summary.preview_headers %}
+                                <td style="white-space: nowrap; font-size: 12px;">{{ row[h] }}</td>
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Wizard Steps Action Bar -->
+    <div class="card-custom mt-4 d-flex justify-content-between align-items-center">
+        <a href="{{ url_for('cleaning.details', uuid=dataset.uuid) }}" class="btn-custom btn-custom-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Cleaning
+        </a>
+        <a href="{{ url_for('database.details', uuid=dataset.uuid) }}" class="btn-custom btn-custom-primary">
+            Load into SQLite Database <i class="bi bi-arrow-right"></i>
+        </a>
+    </div>
+</div>
+{% endblock %}

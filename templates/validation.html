@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+
+{% block title %}Schema Validation - DA Automation System (DAAS){% endblock %}
+
+{% block header_title %}Schema Validation{% endblock %}
+{% block header_subtitle %}Automated checks for structure, type accuracy, and constraints{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0 fade-in">
+    <!-- Dataset Header Panel -->
+    <div class="card-custom mb-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <h5 class="m-0"><i class="bi bi-file-earmark-spreadsheet-fill text-primary me-2"></i>{{ dataset.dataset_name }}</h5>
+                <small class="text-muted-custom">
+                    File: {{ dataset.original_filename }} &bull; Uploaded: {{ dataset.upload_time.strftime('%Y-%m-%d %H:%M:%S') }}
+                </small>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <span class="text-muted-custom" style="font-size: 13px;">Validation Result:</span>
+                {% if summary.status == 'Failed' %}
+                <span class="status-indicator failed px-3 py-2">
+                    <i class="bi bi-exclamation-triangle-fill"></i> Validation Failed
+                </span>
+                {% elif summary.errors or summary.warnings %}
+                <span class="status-indicator pending px-3 py-2">
+                    <i class="bi bi-exclamation-circle-fill"></i> Passed with Warnings
+                </span>
+                {% else %}
+                <span class="status-indicator completed px-3 py-2">
+                    <i class="bi bi-check-circle-fill"></i> Schema Validated
+                </span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Left: Required Column Status & Verification Messages -->
+        <div class="col-lg-6">
+            <!-- Schema Checklist -->
+            <div class="card-custom mb-4">
+                <h6 class="mb-3"><i class="bi bi-check2-all text-primary me-2"></i>Schema Requirements Checklist</h6>
+                <div class="list-group list-group-flush bg-transparent">
+                    <!-- Default Expected columns map -->
+                    {% set expected_cols = {
+                        'Transaction_ID': 'Text / Key (Required)',
+                        'Date': 'Date / Timestamp (Required)',
+                        'Product_Category': 'Text / Category',
+                        'Units_Sold': 'Numeric / Count',
+                        'Unit_Price': 'Numeric / Price',
+                        'Revenue': 'Numeric / Total',
+                        'Customer_Segment': 'Text / Segment',
+                        'Region': 'Text / Region'
+                    } %}
+                    
+                    {% for col, desc in expected_cols.items() %}
+                    <div class="list-group-item bg-transparent border-secondary d-flex justify-content-between align-items-center px-0 py-2">
+                        <div>
+                            <span class="fw-semibold text-light" style="font-size: 14px;">{{ col }}</span>
+                            <span class="text-muted-custom d-block" style="font-size: 11px;">{{ desc }}</span>
+                        </div>
+                        <div>
+                            {% if col in summary.missing_required_columns %}
+                            <span class="text-danger fw-bold" style="font-size: 13px;">
+                                <i class="bi bi-x-circle-fill me-1"></i> Missing Required
+                            </span>
+                            {% elif col not in summary.null_counts %}
+                            <span class="text-success" style="font-size: 13px;">
+                                <i class="bi bi-check-circle-fill me-1"></i> Present & Complete
+                            </span>
+                            {% else %}
+                            <span class="text-warning" style="font-size: 13px;">
+                                <i class="bi bi-exclamation-circle-fill me-1"></i> Present (Has Nulls)
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Messages Logs -->
+            <div class="card-custom">
+                <h6 class="mb-3"><i class="bi bi-journal-text text-primary me-2"></i>Scanner Verification Messages</h6>
+                
+                {% if not summary.errors and not summary.warnings %}
+                <div class="alert alert-success bg-dark border-success text-success m-0" style="font-size: 13px;">
+                    <i class="bi bi-check-circle-fill me-2"></i> Clean schema! No errors or warnings detected.
+                </div>
+                {% else %}
+                <div class="d-flex flex-column gap-2" style="max-height: 350px; overflow-y: auto;">
+                    {% for err in summary.errors %}
+                    <div class="alert alert-danger bg-dark border-danger text-danger m-0 py-2" style="font-size: 13px;">
+                        <i class="bi bi-x-circle-fill me-2"></i> {{ err }}
+                    </div>
+                    {% endfor %}
+                    
+                    {% for warn in summary.warnings %}
+                    <div class="alert alert-warning bg-dark border-warning text-warning m-0 py-2" style="font-size: 13px;">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ warn }}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Right: Quality Indicators & Type Mismatches -->
+        <div class="col-lg-6">
+            <!-- Integrity metrics -->
+            <div class="card-custom mb-4">
+                <h6 class="mb-3"><i class="bi bi-shield-fill-exclamation text-primary me-2"></i>Data Integrity Scanner</h6>
+                
+                <div class="row g-3">
+                    <div class="col-6">
+                        <div class="card bg-dark border-secondary p-3 text-center">
+                            <span class="text-muted-custom" style="font-size: 11px; text-transform: uppercase;">Duplicate Keys</span>
+                            <h3 class="m-0 mt-1 {% if summary.duplicate_id_details %}text-danger{% else %}text-success{% endif %} fw-bold">
+                                {{ summary.duplicate_id_details|length }}
+                            </h3>
+                            <span class="text-muted-custom mt-1" style="font-size: 11px;">Primary Key: Transaction_ID</span>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card bg-dark border-secondary p-3 text-center">
+                            <span class="text-muted-custom" style="font-size: 11px; text-transform: uppercase;">Columns with Nulls</span>
+                            <h3 class="m-0 mt-1 {% if summary.null_counts %}text-warning{% else %}text-success{% endif %} fw-bold">
+                                {{ summary.null_counts|length }}
+                            </h3>
+                            <span class="text-muted-custom mt-1" style="font-size: 11px;">Out of {{ dataset.column_count }} columns</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Type Mismatches Details -->
+            <div class="card-custom h-100" style="max-height: 480px; overflow-y: auto;">
+                <h6 class="mb-3"><i class="bi bi-braces-asterisk text-primary me-2"></i>Datatype Format Mismatches</h6>
+                
+                {% if not summary.invalid_types %}
+                <div class="text-center py-5 text-muted-custom">
+                    <i class="bi bi-check2-circle text-success" style="font-size: 2.5rem;"></i>
+                    <p class="mt-2" style="font-size: 13.5px;">All column values match their expected formats (numeric/date).</p>
+                </div>
+                {% else %}
+                <div class="d-flex flex-column gap-3">
+                    {% for col, errors in summary.invalid_types.items() %}
+                    <div class="border border-secondary rounded p-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <strong class="text-light" style="font-size: 13.5px;">Column: {{ col }}</strong>
+                            <span class="badge-custom badge-custom-danger">Expected: {{ EXPECTED_SCHEMA[col]['type'] }}</span>
+                        </div>
+                        <table class="table table-sm table-dark border-secondary m-0" style="font-size: 12px;">
+                            <thead>
+                                <tr>
+                                    <th>CSV Line No</th>
+                                    <th>Malformed Input Value</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for err in errors %}
+                                <tr>
+                                    <td>Line {{ err.row }}</td>
+                                    <td class="text-danger fw-mono">{{ err.value }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Wizard Steps Action Bar -->
+    <div class="card-custom mt-4 d-flex justify-content-between align-items-center">
+        <a href="{{ url_for('dashboard.index') }}" class="btn-custom btn-custom-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Dashboard
+        </a>
+        
+        <div class="d-flex gap-2">
+            {% if summary.status == 'Failed' %}
+            <button class="btn-custom btn-custom-primary" disabled style="opacity: 0.5;">
+                <i class="bi bi-slash-circle-fill"></i> Fix Schema to Proceed
+            </button>
+            {% else %}
+            <a href="{{ url_for('cleaning.details', uuid=dataset.uuid) }}" class="btn-custom btn-custom-primary" id="proceedCleaningBtn">
+                Proceed to Data Cleaning <i class="bi bi-arrow-right"></i>
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const proceedBtn = document.getElementById('proceedCleaningBtn');
+    if (proceedBtn) {
+        proceedBtn.addEventListener('click', function() {
+            proceedBtn.classList.add('btn-custom-loading');
+            window.showNotification("Initiating Cleaning", "Running automated cleaning algorithms on the dataset...", true);
+        });
+    }
+});
+</script>
+{% endblock %}

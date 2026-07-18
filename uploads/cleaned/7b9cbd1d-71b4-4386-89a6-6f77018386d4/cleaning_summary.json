@@ -1,0 +1,34 @@
+{
+    "original_rows": 10,
+    "cleaned_rows": 10,
+    "original_columns": [
+        "Order_ID",
+        "Date",
+        "Customer",
+        "Product",
+        "Category",
+        "Quantity",
+        "Unit_Price",
+        "Revenue",
+        "Region"
+    ],
+    "empty_rows_removed": 0,
+    "duplicates_removed": 0,
+    "nulls_filled": 0,
+    "missing_value_actions": {},
+    "numeric_conversions": [
+        "Revenue"
+    ],
+    "date_columns_standardized": [
+        "Date"
+    ],
+    "text_columns_cleaned": [
+        "Date",
+        "Customer",
+        "Product",
+        "Category",
+        "Region"
+    ],
+    "casing_rule": "title",
+    "cleaned_filepath": "E:\\DataFlowAI\\uploads\\cleaned\\7b9cbd1d-71b4-4386-89a6-6f77018386d4\\sales_test.csv"
+}

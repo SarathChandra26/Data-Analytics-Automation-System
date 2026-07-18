@@ -1,0 +1,81 @@
+/* Button Styles */
+.btn-custom {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    font-size: 14px;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-md);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.btn-custom-primary {
+    background-color: var(--accent-blue);
+    color: var(--text-primary);
+}
+
+.btn-custom-primary:hover {
+    background-color: var(--accent-blue-hover);
+    color: var(--text-primary);
+    box-shadow: 0 0 10px var(--accent-blue-glow);
+}
+
+.btn-custom-secondary {
+    background-color: var(--bg-card);
+    border-color: var(--border-color);
+    color: var(--text-secondary);
+}
+
+.btn-custom-secondary:hover {
+    background-color: var(--bg-card-hover);
+    border-color: var(--border-hover);
+    color: var(--text-primary);
+}
+
+.btn-custom-danger {
+    background-color: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.2);
+    color: var(--color-failed);
+}
+
+.btn-custom-danger:hover {
+    background-color: var(--color-failed);
+    color: var(--text-primary);
+}
+
+.btn-custom-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 12px;
+    border-radius: var(--radius-sm);
+}
+
+.btn-custom-lg {
+    padding: 0.75rem 1.5rem;
+    font-size: 16px;
+}
+
+/* Button loading state */
+.btn-custom-loading {
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+.btn-custom-loading::after {
+    content: "";
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: spinner-border 0.75s linear infinite;
+    display: inline-block;
+    margin-left: 0.5rem;
+}
+@keyframes spinner-border {
+    to { transform: rotate(360deg); }
+}

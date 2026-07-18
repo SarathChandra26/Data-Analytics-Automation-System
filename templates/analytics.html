@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics Engine - DA Automation System (DAAS){% endblock %}
+
+{% block header_title %}Analytics Engine{% endblock %}
+{% block header_subtitle %}Automated business KPIs and summary statistics{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0 fade-in">
+    <!-- Dataset Header Panel -->
+    <div class="card-custom mb-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <h5 class="m-0"><i class="bi bi-bar-chart-fill text-primary me-2"></i>{{ dataset.dataset_name }}</h5>
+                <small class="text-muted-custom">
+                    Source: {{ summary.source_stage }} output &bull; Generated: {{ summary.generated_at }}
+                </small>
+            </div>
+            <span class="status-indicator completed px-3 py-2">
+                <i class="bi bi-check-circle-fill"></i> Analytics Completed
+            </span>
+        </div>
+    </div>
+
+    <!-- KPI Cards Grid -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4 col-lg-2">
+            <div class="card-custom card-custom-hover">
+                <div class="card-title-custom">Row Count</div>
+                <div class="card-value-custom">{{ "{:,}".format(summary.row_count) }}</div>
+                <div class="card-desc-custom">Total records analyzed</div>
+            </div>
+        </div>
+        <div class="col-md-4 col-lg-2">
+            <div class="card-custom card-custom-hover">
+                <div class="card-title-custom">Column Count</div>
+                <div class="card-value-custom">{{ summary.column_count }}</div>
+                <div class="card-desc-custom">Fields in dataset</div>
+            </div>
+        </div>
+        <div class="col-md-4 col-lg-2">
+            <div class="card-custom card-custom-hover">
+                <div class="card-title-custom">Missing Data</div>
+                <div class="card-value-custom {% if summary.missing_percentage > 5 %}text-warning{% else %}text-success{% endif %}">{{ summary.missing_percentage }}%</div>
+                <div class="card-desc-custom">{{ summary.missing_cells }} missing cells</div>
+            </div>
+        </div>
+        {% if summary.revenue_metrics.available %}
+        <div class="col-md-4 col-lg-2">
+            <div class="card-custom card-custom-hover">
+                <div class="card-title-custom">Total Revenue</div>
+                <div class="card-value-custom text-success">${{ "{:,.2f}".format(summary.revenue_metrics.total_revenue) }}</div>
+                <div class="card-desc-custom">From '{{ summary.revenue_metrics.column_used }}'</div>
+            </div>
+        </div>
+        <div class="col-md-4 col-lg-2">
+            <div class="card-custom card-custom-hover">
+                <div class="card-title-custom">Avg Revenue</div>
+                <div class="card-value-custom text-primary">${{ "{:,.2f}".format(summary.revenue_metrics.average_revenue) }}</div>
+                <div class="card-desc-custom">Per record</div>
+            </div>
+        </div>
+        {% endif %}
+        {% if summary.sales_metrics.available %}
+        <div class="col-md-4 col-lg-2">
+            <div class="card-custom card-custom-hover">
+                <div class="card-title-custom">Units Sold</div>
+                <div class="card-value-custom">{{ "{:,.0f}".format(summary.sales_metrics.total_units_sold) }}</div>
+                <div class="card-desc-custom">From '{{ summary.sales_metrics.column_used }}'</div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    {% if summary.revenue_metrics.available or summary.sales_metrics.available %}
+    <div class="row g-3 mb-4">
+        {% if summary.revenue_metrics.available %}
+        <div class="col-md-3">
+            <div class="card-custom">
+                <div class="card-title-custom">Max Revenue</div>
+                <div class="card-value-custom" style="font-size: 1.25rem;">${{ "{:,.2f}".format(summary.revenue_metrics.max_revenue) }}</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card-custom">
+                <div class="card-title-custom">Min Revenue</div>
+                <div class="card-value-custom" style="font-size: 1.25rem;">${{ "{:,.2f}".format(summary.revenue_metrics.min_revenue) }}</div>
+            </div>
+        </div>
+        {% endif %}
+        {% if summary.sales_metrics.available %}
+        <div class="col-md-3">
+            <div class="card-custom">
+                <div class="card-title-custom">Max Units (single record)</div>
+                <div class="card-value-custom" style="font-size: 1.25rem;">{{ "{:,.0f}".format(summary.sales_metrics.max_units_sold) }}</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card-custom">
+                <div class="card-title-custom">Avg Units Sold</div>
+                <div class="card-value-custom" style="font-size: 1.25rem;">{{ "{:,.2f}".format(summary.sales_metrics.average_units_sold) }}</div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <div class="row g-4">
+        <!-- Left: Top Categories -->
+        <div class="col-lg-6">
+            <div class="card-custom h-100">
+                <h6 class="mb-3"><i class="bi bi-trophy-fill text-primary me-2"></i>Top Categories
+                    {% if summary.category_column_used %}<span class="text-muted-custom" style="font-size: 12px;">(by {{ summary.top_categories[0].metric if summary.top_categories else '' }}, from '{{ summary.category_column_used }}')</span>{% endif %}
+                </h6>
+                {% if not summary.top_categories %}
+                <div class="text-center py-5 text-muted-custom">
+                    <i class="bi bi-inboxes" style="font-size: 2rem;"></i>
+                    <p class="mt-2">No categorical column detected for ranking.</p>
+                </div>
+                {% else %}
+                <div class="d-flex flex-column gap-2">
+                    {% for cat in summary.top_categories %}
+                    <div>
+                        <div class="d-flex justify-content-between" style="font-size: 13px;">
+                            <span class="text-light">{{ cat.category }}</span>
+                            <span class="text-muted-custom">{{ "{:,.2f}".format(cat.value) if cat.metric == 'revenue' else cat.value }} &bull; {{ cat.percentage }}%</span>
+                        </div>
+                        <div class="progress bg-dark" style="height: 6px; border-radius: 4px;">
+                            <div class="progress-bar" role="progressbar" style="width: {{ cat.percentage }}%; background-color: var(--accent-blue);"></div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Right: Monthly Trends -->
+        <div class="col-lg-6">
+            <div class="card-custom h-100">
+                <h6 class="mb-3"><i class="bi bi-graph-up-arrow text-primary me-2"></i>Monthly Trends
+                    {% if summary.date_column_used %}<span class="text-muted-custom" style="font-size: 12px;">(from '{{ summary.date_column_used }}')</span>{% endif %}
+                </h6>
+                {% if not summary.monthly_trends %}
+                <div class="text-center py-5 text-muted-custom">
+                    <i class="bi bi-calendar-x" style="font-size: 2rem;"></i>
+                    <p class="mt-2">No date column detected for trend analysis.</p>
+                </div>
+                {% else %}
+                {% set max_val = summary.monthly_trends | map(attribute='value') | max %}
+                <div class="d-flex flex-column gap-2" style="max-height: 320px; overflow-y: auto;">
+                    {% for point in summary.monthly_trends %}
+                    <div>
+                        <div class="d-flex justify-content-between" style="font-size: 13px;">
+                            <span class="text-light">{{ point.month }}</span>
+                            <span class="text-muted-custom">{{ "{:,.2f}".format(point.value) }}</span>
+                        </div>
+                        <div class="progress bg-dark" style="height: 6px; border-radius: 4px;">
+                            <div class="progress-bar" role="progressbar" style="width: {{ (point.value / max_val * 100) if max_val else 0 }}%; background-color: var(--color-completed);"></div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Statistics Table -->
+    <div class="card-custom mt-4">
+        <h6 class="mb-3"><i class="bi bi-calculator-fill text-primary me-2"></i>Summary Statistics <span class="text-muted-custom" style="font-size: 12px;">(all numeric columns)</span></h6>
+        {% if not summary.summary_statistics %}
+        <div class="text-center py-5 text-muted-custom">
+            <i class="bi bi-slash-circle" style="font-size: 2rem;"></i>
+            <p class="mt-2">No numeric columns available for statistical summary.</p>
+        </div>
+        {% else %}
+        <div class="table-responsive">
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>Column</th>
+                        <th>Sum</th>
+                        <th>Mean</th>
+                        <th>Median</th>
+                        <th>Std Dev</th>
+                        <th>Min</th>
+                        <th>Max</th>
+                        <th>Count</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for col, stats in summary.summary_statistics.items() %}
+                    <tr>
+                        <td class="fw-semibold text-light">{{ col }}</td>
+                        <td>{{ "{:,.2f}".format(stats.sum) }}</td>
+                        <td>{{ "{:,.2f}".format(stats.mean) }}</td>
+                        <td>{{ "{:,.2f}".format(stats.median) }}</td>
+                        <td>{{ "{:,.2f}".format(stats.std_dev) }}</td>
+                        <td>{{ "{:,.2f}".format(stats.min) }}</td>
+                        <td>{{ "{:,.2f}".format(stats.max) }}</td>
+                        <td>{{ stats.count }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Wizard Steps Action Bar -->
+    <div class="card-custom mt-4 d-flex justify-content-between align-items-center">
+        <a href="{{ url_for('database.details', uuid=dataset.uuid) }}" class="btn-custom btn-custom-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Database
+        </a>
+        <a href="{{ url_for('charts.details', uuid=dataset.uuid) }}" class="btn-custom btn-custom-primary">
+            Generate Visualizations <i class="bi bi-arrow-right"></i>
+        </a>
+    </div>
+</div>
+{% endblock %}

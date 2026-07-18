@@ -1,0 +1,15 @@
+{
+    "timestamp": "2026-07-18 19:28:57",
+    "dataset_uuid": "f98a2636-2160-4360-9969-056f7c273cea",
+    "status": "Failed",
+    "missing_required_columns": [
+        "Transaction_ID"
+    ],
+    "duplicate_id_details": [],
+    "null_counts": {},
+    "invalid_types": {},
+    "errors": [
+        "Missing required columns: Transaction_ID"
+    ],
+    "warnings": []
+}

@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}Logs & Monitoring - DA Automation System (DAAS){% endblock %}
+
+{% block header_title %}Logs & Monitoring{% endblock %}
+{% block header_subtitle %}Search and inspect system activity, pipeline, and error logs{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0 fade-in">
+    <!-- Summary Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card-custom card-custom-hover">
+                <div class="card-title-custom">Total Activity Entries</div>
+                <div class="card-value-custom">{{ total_count }}</div>
+                <div class="card-desc-custom">All recorded events</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card-custom card-custom-hover">
+                <div class="card-title-custom">Warnings</div>
+                <div class="card-value-custom text-warning">{{ warning_count }}</div>
+                <div class="card-desc-custom">Non-fatal issues logged</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card-custom card-custom-hover">
+                <div class="card-title-custom">Errors</div>
+                <div class="card-value-custom text-danger">{{ error_count }}</div>
+                <div class="card-desc-custom">Pipeline failures logged</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card-custom mb-4">
+        <form method="get" action="{{ url_for('logs.index') }}" class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label-custom">Search Message</label>
+                <input type="text" name="q" value="{{ filters.q }}" placeholder="Search log messages..." class="form-control-custom">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label-custom">Level</label>
+                <select name="level" class="form-control-custom">
+                    <option value="" {% if not filters.level %}selected{% endif %}>All</option>
+                    <option value="INFO" {% if filters.level == 'INFO' %}selected{% endif %}>Info</option>
+                    <option value="WARNING" {% if filters.level == 'WARNING' %}selected{% endif %}>Warning</option>
+                    <option value="ERROR" {% if filters.level == 'ERROR' %}selected{% endif %}>Error</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label-custom">Dataset</label>
+                <select name="dataset_id" class="form-control-custom">
+                    <option value="" {% if not filters.dataset_id %}selected{% endif %}>All Datasets</option>
+                    {% for d in datasets %}
+                    <option value="{{ d.id }}" {% if filters.dataset_id == d.id|string %}selected{% endif %}>{{ d.dataset_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label-custom">From Date</label>
+                <input type="date" name="date_from" value="{{ filters.date_from }}" class="form-control-custom">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label-custom">To Date</label>
+                <input type="date" name="date_to" value="{{ filters.date_to }}" class="form-control-custom">
+            </div>
+            <div class="col-12 d-flex gap-2">
+                <button type="submit" class="btn-custom btn-custom-primary">
+                    <i class="bi bi-funnel-fill"></i> Apply Filters
+                </button>
+                <a href="{{ url_for('logs.index') }}" class="btn-custom btn-custom-secondary">
+                    <i class="bi bi-x-lg"></i> Clear
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <div class="row g-4">
+        <!-- Left: Activity Log Table -->
+        <div class="col-lg-7">
+            <div class="card-custom h-100">
+                <h6 class="mb-3"><i class="bi bi-activity text-primary me-2"></i>Activity Log <span class="text-muted-custom" style="font-size: 12px;">(latest 300 matching)</span></h6>
+                {% if not activity_logs %}
+                <div class="text-center py-5 text-muted-custom">
+                    <i class="bi bi-inbox" style="font-size: 2rem;"></i>
+                    <p class="mt-2">No log entries match the current filters.</p>
+                </div>
+                {% else %}
+                <div class="table-responsive" style="max-height: 560px; overflow-y: auto;">
+                    <table class="table-custom">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Level</th>
+                                <th>Stage</th>
+                                <th>Message</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for log in activity_logs %}
+                            <tr>
+                                <td style="font-size: 11px; white-space: nowrap;">{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                                <td>
+                                    <span class="badge-custom {% if log.level == 'ERROR' %}badge-custom-danger{% elif log.level == 'WARNING' %}badge-custom-warning{% else %}badge-custom-neutral{% endif %}" style="font-size: 10px;">
+                                        {{ log.level }}
+                                    </span>
+                                </td>
+                                <td style="font-size: 11px;">{{ log.stage or 'System' }}</td>
+                                <td style="font-size: 12px;" class="text-secondary-custom">{{ log.message }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Right: Raw Log File Viewer -->
+        <div class="col-lg-5">
+            <div class="card-custom h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="m-0"><i class="bi bi-journal-code text-primary me-2"></i>Raw Log File</h6>
+                    <div class="btn-group btn-group-sm">
+                        {% for key, fname in log_files.items() %}
+                        <a href="{{ url_for('logs.index', q=filters.q, level=filters.level, dataset_id=filters.dataset_id, date_from=filters.date_from, date_to=filters.date_to, file=key) }}"
+                           class="btn-custom btn-custom-sm {% if filters.file == key %}btn-custom-primary{% else %}btn-custom-secondary{% endif %}">
+                            {{ key.title() }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="p-3 rounded" style="background-color: var(--bg-secondary); max-height: 500px; overflow-y: auto; font-family: 'SF Mono', Consolas, monospace; font-size: 11px; line-height: 1.6;">
+                    {% if not raw_lines %}
+                    <div class="text-muted-custom text-center py-4">Log file is empty.</div>
+                    {% else %}
+                    {% for line in raw_lines %}
+                    <div class="{% if 'ERROR' in line %}text-danger{% elif 'WARNING' in line %}text-warning{% else %}text-secondary-custom{% endif %}" style="white-space: pre-wrap; word-break: break-all; border-bottom: 1px solid var(--border-color); padding: 3px 0;">{{ line }}</div>
+                    {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

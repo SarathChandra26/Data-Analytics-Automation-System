@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}Report Generator - DA Automation System (DAAS){% endblock %}
+
+{% block header_title %}Report Generator{% endblock %}
+{% block header_subtitle %}Professional Excel & PDF reports for {{ dataset.dataset_name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0 fade-in">
+    <!-- Dataset Header Panel -->
+    <div class="card-custom mb-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <h5 class="m-0"><i class="bi bi-file-earmark-bar-graph-fill text-primary me-2"></i>{{ dataset.dataset_name }}</h5>
+                <small class="text-muted-custom">
+                    Saved to: <code class="text-secondary-custom">reports/{{ report_year }}/{{ report_dir.split('/')[-1] }}/</code>
+                </small>
+            </div>
+            {% if archive_stage and archive_stage.status == 'Completed' %}
+            <span class="status-indicator completed px-3 py-2">
+                <i class="bi bi-check-circle-fill"></i> Pipeline Completed
+            </span>
+            {% else %}
+            <span class="status-indicator running px-3 py-2">
+                <i class="bi bi-arrow-repeat spin"></i> Finalizing
+            </span>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Excel Report Card -->
+        <div class="col-md-6">
+            <div class="card-custom h-100">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="rounded d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; background: rgba(16, 185, 129, 0.12);">
+                        <i class="bi bi-file-earmark-excel-fill text-success" style="font-size: 1.5rem;"></i>
+                    </div>
+                    <div>
+                        <h6 class="m-0">Excel Report</h6>
+                        <small class="text-muted-custom">.xlsx &bull; {{ excel_size }}</small>
+                    </div>
+                </div>
+                <p class="text-secondary-custom" style="font-size: 13px;">
+                    Multi-sheet workbook including Dataset Info, Validation Summary, Cleaning Summary,
+                    Analytics KPIs, Top Categories, Monthly Trends, Summary Statistics, Pipeline Summary, and embedded charts.
+                </p>
+                {% if excel_exists %}
+                <a href="{{ url_for('reports.download_excel', uuid=dataset.uuid) }}" class="btn-custom btn-custom-primary w-100">
+                    <i class="bi bi-download"></i> Download Excel Report
+                </a>
+                {% else %}
+                <button class="btn-custom btn-custom-secondary w-100" disabled>
+                    <i class="bi bi-hourglass-split"></i> Not Available
+                </button>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- PDF Report Card -->
+        <div class="col-md-6">
+            <div class="card-custom h-100">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="rounded d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; background: rgba(239, 68, 68, 0.12);">
+                        <i class="bi bi-file-earmark-pdf-fill text-danger" style="font-size: 1.5rem;"></i>
+                    </div>
+                    <div>
+                        <h6 class="m-0">PDF Report</h6>
+                        <small class="text-muted-custom">.pdf &bull; {{ pdf_size }}</small>
+                    </div>
+                </div>
+                <p class="text-secondary-custom" style="font-size: 13px;">
+                    Presentation-ready document covering dataset information, validation and cleaning summaries,
+                    KPIs, embedded visualizations, and a full pipeline execution summary.
+                </p>
+                {% if pdf_exists %}
+                <a href="{{ url_for('reports.download_pdf', uuid=dataset.uuid) }}" class="btn-custom btn-custom-primary w-100">
+                    <i class="bi bi-download"></i> Download PDF Report
+                </a>
+                {% else %}
+                <button class="btn-custom btn-custom-secondary w-100" disabled>
+                    <i class="bi bi-hourglass-split"></i> Not Available
+                </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Report Contents Preview -->
+    <div class="card-custom mt-4">
+        <h6 class="mb-3"><i class="bi bi-list-check text-primary me-2"></i>Report Contents</h6>
+        <div class="row g-3" style="font-size: 13px;">
+            <div class="col-md-6">
+                <ul class="text-secondary-custom" style="padding-left: 1.1rem;">
+                    <li>Dataset information &amp; metadata</li>
+                    <li>Validation summary (errors, warnings, schema checks)</li>
+                    <li>Cleaning summary (rows removed, nulls filled)</li>
+                    <li>Analytics KPIs (revenue, sales, averages)</li>
+                </ul>
+            </div>
+            <div class="col-md-6">
+                <ul class="text-secondary-custom" style="padding-left: 1.1rem;">
+                    <li>Top categories &amp; monthly trends</li>
+                    <li>Summary statistics for numeric columns</li>
+                    <li>Embedded charts (bar, line, pie, histogram, box plot)</li>
+                    <li>Full pipeline stage-by-stage execution summary</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Wizard Steps Action Bar -->
+    <div class="card-custom mt-4 d-flex justify-content-between align-items-center">
+        <a href="{{ url_for('charts.details', uuid=dataset.uuid) }}" class="btn-custom btn-custom-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Charts
+        </a>
+        <a href="{{ url_for('dashboard.index') }}" class="btn-custom btn-custom-primary">
+            Back to Dashboard <i class="bi bi-check-lg"></i>
+        </a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - DA Automation System (DAAS){% endblock %}
+
+{% block header_title %}DA Automation System (DAAS) Dashboard{% endblock %}
+{% block header_subtitle %}Overview of automated data processing pipelines{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <!-- KPI Cards Grid -->
+    <div class="row g-3 mb-4">
+        <!-- Card: Total Datasets -->
+        <div class="col-md-4 col-lg-2">
+            <div class="card-custom card-custom-hover">
+                <div class="card-title-custom">Total Datasets</div>
+                <div class="card-value-custom">{{ kpis.total_datasets }}</div>
+                <div class="card-desc-custom">Uploaded & tracked</div>
+            </div>
+        </div>
+        <!-- Card: Reports Generated -->
+        <div class="col-md-4 col-lg-2">
+            <div class="card-custom card-custom-hover">
+                <div class="card-title-custom">Reports Generated</div>
+                <div class="card-value-custom">{{ kpis.reports_generated }}</div>
+                <div class="card-desc-custom">Excel & PDF files</div>
+            </div>
+        </div>
+        <!-- Card: Rows Processed -->
+        <div class="col-md-4 col-lg-2">
+            <div class="card-custom card-custom-hover">
+                <div class="card-title-custom">Rows Processed</div>
+                <div class="card-value-custom">{{ kpis.rows_processed }}</div>
+                <div class="card-desc-custom">Cleaned and aggregated</div>
+            </div>
+        </div>
+        <!-- Card: Success Rate -->
+        <div class="col-md-4 col-lg-2">
+            <div class="card-custom card-custom-hover">
+                <div class="card-title-custom">Success Rate</div>
+                <div class="card-value-custom text-success">{{ kpis.success_rate }}</div>
+                <div class="card-desc-custom">Pipeline completion</div>
+            </div>
+        </div>
+        <!-- Card: Pipeline Runs -->
+        <div class="col-md-4 col-lg-2">
+            <div class="card-custom card-custom-hover">
+                <div class="card-title-custom">Pipeline Runs</div>
+                <div class="card-value-custom">{{ kpis.pipeline_runs }}</div>
+                <div class="card-desc-custom">Total runs triggered</div>
+            </div>
+        </div>
+        <!-- Card: Storage Used -->
+        <div class="col-md-4 col-lg-2">
+            <div class="card-custom card-custom-hover">
+                <div class="card-title-custom">Storage Used</div>
+                <div class="card-value-custom text-primary">{{ kpis.storage_used }}</div>
+                <div class="card-desc-custom">Raw & processed files</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Dashboard Row -->
+    <div class="row g-4">
+        <!-- Left: Pipeline Overview Grid -->
+        <div class="col-lg-8">
+            <div class="card-custom h-100">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="m-0"><i class="bi bi-diagram-3-fill me-2 text-primary"></i>Pipeline Overview</h5>
+                    <a href="{{ url_for('upload.index') }}" class="btn-custom btn-custom-primary btn-custom-sm">
+                        <i class="bi bi-plus-lg"></i> New Dataset
+                    </a>
+                </div>
+
+                {% if not datasets %}
+                <div class="text-center py-5">
+                    <i class="bi bi-file-earmark-bar-graph text-muted-custom" style="font-size: 3rem;"></i>
+                    <h5 class="mt-3 text-secondary-custom">No datasets uploaded yet</h5>
+                    <p class="text-muted-custom">Get started by uploading your first CSV file.</p>
+                </div>
+                {% else %}
+                <div class="table-responsive">
+                    <table class="table-custom">
+                        <thead>
+                            <tr>
+                                <th>Dataset Details</th>
+                                <th>Pipeline Stage Statuses</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for d in datasets %}
+                            <tr>
+                                <td>
+                                    <div class="fw-bold">{{ d.dataset_name }}</div>
+                                    <div class="text-muted-custom style-font-sm" style="font-size: 12px;">
+                                        {{ d.original_filename }} &bull; {{ (d.file_size_bytes / 1024)|round(2) }} KB
+                                    </div>
+                                    <div class="text-muted-custom mt-1" style="font-size: 11px;">
+                                        Uploaded: {{ d.upload_time.strftime('%Y-%m-%d %H:%M:%S') }}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex flex-wrap gap-2 py-1">
+                                        {% set stage_routes = {
+                                            'Validation': 'validation.details',
+                                            'Cleaning': 'cleaning.details',
+                                            'Transformation': 'transformation.details',
+                                            'Database': 'database.details'
+                                        } %}
+                                        {% for s in d.stages if s.stage_name in stage_routes %}
+                                        <div class="text-center" style="min-width: 65px;">
+                                            <a href="{{ url_for(stage_routes[s.stage_name], uuid=d.uuid) }}" 
+                                               class="status-indicator {% if s.status == 'Pending' %}pending{% elif s.status == 'Running' %}running{% elif s.status == 'Completed' %}completed{% else %}failed{% endif %} px-2 py-1 w-100 d-block text-decoration-none" 
+                                               style="font-size: 10px; text-align: center; border-radius: 4px;"
+                                               title="{{ s.stage_name }}: {{ s.status }}">
+                                                {{ s.stage_name.replace('_', ' ') }}
+                                            </a>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="status-indicator {% if d.status == 'Pending' %}pending{% elif d.status == 'Running' %}running{% elif d.status == 'Completed' %}completed{% else %}failed{% endif %}">
+                                        <i class="bi {% if d.status == 'Pending' %}bi-hourglass-split{% elif d.status == 'Running' %}bi-arrow-repeat spin{% elif d.status == 'Completed' %}bi-check-circle-fill{% else %}bi-exclamation-triangle-fill{% endif %}"></i>
+                                        {{ d.status }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Right: Recent Activity Timeline -->
+        <div class="col-lg-4">
+            <div class="card-custom h-100">
+                <h5 class="mb-4"><i class="bi bi-clock-history me-2 text-primary"></i>Recent System Activity</h5>
+                
+                {% if not recent_logs %}
+                <div class="text-center py-5 text-muted-custom">
+                    <i class="bi bi-calendar-x" style="font-size: 2rem;"></i>
+                    <p class="mt-2">No activity recorded yet.</p>
+                </div>
+                {% else %}
+                <div class="timeline-container">
+                    <ul class="list-unstyled position-relative ps-3" style="border-left: 2px solid var(--border-color); margin-left: 10px;">
+                        {% for log in recent_logs %}
+                        <li class="mb-4 position-relative">
+                            <!-- Bullet node -->
+                            <span class="position-absolute" style="left: -21px; top: 3px; width: 10px; height: 10px; border-radius: 50%; background-color: {% if log.level == 'ERROR' %}var(--color-failed){% else %}var(--accent-blue){% endif %}; border: 2px solid var(--bg-card);"></span>
+                            <div class="ps-2">
+                                <div class="d-flex justify-content-between align-items-baseline">
+                                    <span class="badge bg-dark border border-secondary text-secondary-custom px-2 py-0.5" style="font-size: 10px;">
+                                        {{ log.stage or 'System' }}
+                                    </span>
+                                    <small class="text-muted-custom" style="font-size: 11px;">
+                                        {{ log.timestamp.strftime('%H:%M:%S') }}
+                                    </small>
+                                </div>
+                                <p class="m-0 mt-1 text-secondary-custom" style="font-size: 13px; line-height: 1.4;">
+                                    {{ log.message }}
+                                </p>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+
+{% block title %}SQLite Data Loader - DA Automation System (DAAS){% endblock %}
+
+{% block header_title %}SQLite Data Loader{% endblock %}
+{% block header_subtitle %}Standardized analytics table storage and import tracking{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0 fade-in">
+    <!-- Dataset Header Panel -->
+    <div class="card-custom mb-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <h5 class="m-0"><i class="bi bi-database-fill-gear text-primary me-2"></i>{{ dataset.dataset_name }}</h5>
+                <small class="text-muted-custom">
+                    File: {{ dataset.original_filename }} &bull; Imported: {{ meta.imported_at.strftime('%Y-%m-%d %H:%M:%S') if meta and meta.imported_at else 'N/A' }}
+                </small>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                {% if meta and meta.import_status == 'Completed' %}
+                <span class="status-indicator completed px-3 py-2">
+                    <i class="bi bi-check-circle-fill"></i> Import Completed
+                </span>
+                {% else %}
+                <span class="status-indicator failed px-3 py-2">
+                    <i class="bi bi-exclamation-triangle-fill"></i> Import {{ meta.import_status if meta else 'Pending' }}
+                </span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- KPI Row -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4 col-lg-3">
+            <div class="card-custom card-custom-hover">
+                <div class="card-title-custom">Records Loaded</div>
+                <div class="card-value-custom text-success">{{ meta.record_count if meta else 0 }}</div>
+                <div class="card-desc-custom">Rows in analytics_data</div>
+            </div>
+        </div>
+        <div class="col-md-4 col-lg-3">
+            <div class="card-custom card-custom-hover">
+                <div class="card-title-custom">Source Columns</div>
+                <div class="card-value-custom">{{ meta.column_count if meta else 0 }}</div>
+                <div class="card-desc-custom">Fields in source file</div>
+            </div>
+        </div>
+        <div class="col-md-4 col-lg-3">
+            <div class="card-custom card-custom-hover">
+                <div class="card-title-custom">Source Stage</div>
+                <div class="card-value-custom text-primary" style="font-size: 1.1rem;">{{ 'Transformed' if dataset.transformed_filepath else 'Cleaned' }}</div>
+                <div class="card-desc-custom">Origin of loaded data</div>
+            </div>
+        </div>
+        <div class="col-md-4 col-lg-3">
+            <div class="card-custom card-custom-hover">
+                <div class="card-title-custom">Total Datasets Loaded</div>
+                <div class="card-value-custom">{{ all_imports|length }}</div>
+                <div class="card-desc-custom">Across the analytics table</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Left: Tables overview -->
+        <div class="col-lg-5">
+            <div class="card-custom mb-4">
+                <h6 class="mb-3"><i class="bi bi-table text-primary me-2"></i>Database Tables</h6>
+                <div class="border border-secondary rounded p-3 d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="fw-semibold text-light">analytics_data</div>
+                        <div class="text-muted-custom" style="font-size: 12px;">Standardized transaction analytics table</div>
+                    </div>
+                    <span class="badge-custom badge-custom-primary">SQLite</span>
+                </div>
+            </div>
+
+            <div class="card-custom">
+                <h6 class="mb-3"><i class="bi bi-clock-history text-primary me-2"></i>Import History (this table)</h6>
+                {% if not all_imports %}
+                <div class="text-muted-custom" style="font-size: 13px;">No datasets imported yet.</div>
+                {% else %}
+                <div class="d-flex flex-column gap-2" style="max-height: 400px; overflow-y: auto;">
+                    {% for imp in all_imports %}
+                    <div class="border border-secondary rounded p-2 d-flex justify-content-between align-items-center" style="font-size: 13px;">
+                        <div>
+                            <a href="{{ url_for('database.details', uuid=imp.uuid) }}" class="text-light text-decoration-none fw-semibold">{{ imp.dataset_name }}</a>
+                            <div class="text-muted-custom" style="font-size: 11px;">{{ imp.AnalyticsTableMeta.imported_at.strftime('%Y-%m-%d %H:%M') }}</div>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge-custom {% if imp.AnalyticsTableMeta.import_status == 'Completed' %}badge-custom-success{% else %}badge-custom-danger{% endif %}">
+                                {{ imp.AnalyticsTableMeta.import_status }}
+                            </span>
+                            <div class="text-muted-custom mt-1" style="font-size: 11px;">{{ imp.AnalyticsTableMeta.record_count }} records</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Right: Sample records + dataset metadata -->
+        <div class="col-lg-7">
+            <div class="card-custom mb-4">
+                <h6 class="mb-3"><i class="bi bi-info-circle-fill text-primary me-2"></i>Dataset Metadata</h6>
+                <div class="row g-3" style="font-size: 13px;">
+                    <div class="col-6"><span class="text-muted-custom">UUID:</span> <span class="text-light">{{ dataset.uuid }}</span></div>
+                    <div class="col-6"><span class="text-muted-custom">Row Count:</span> <span class="text-light">{{ dataset.row_count }}</span></div>
+                    <div class="col-6"><span class="text-muted-custom">Column Count:</span> <span class="text-light">{{ dataset.column_count }}</span></div>
+                    <div class="col-6"><span class="text-muted-custom">File Size:</span> <span class="text-light">{{ (dataset.file_size_bytes / 1024)|round(2) }} KB</span></div>
+                    <div class="col-12"><span class="text-muted-custom">Source File:</span> <code class="text-secondary-custom">{{ meta.source_filepath if meta else 'N/A' }}</code></div>
+                </div>
+            </div>
+
+            <div class="card-custom">
+                <h6 class="mb-3"><i class="bi bi-rows text-primary me-2"></i>Sample Records <span class="text-muted-custom" style="font-size: 12px;">(first 10 in analytics_data)</span></h6>
+                <div class="table-responsive" style="max-height: 400px; overflow: auto;">
+                    <table class="table-custom">
+                        <thead>
+                            <tr>
+                                <th>Transaction ID</th>
+                                <th>Date</th>
+                                <th>Category</th>
+                                <th>Units</th>
+                                <th>Revenue</th>
+                                <th>Segment</th>
+                                <th>Region</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for r in sample_records %}
+                            <tr>
+                                <td style="font-size: 12px;">{{ r.transaction_id }}</td>
+                                <td style="font-size: 12px;">{{ r.transaction_date }}</td>
+                                <td style="font-size: 12px;">{{ r.product_category }}</td>
+                                <td style="font-size: 12px;">{{ r.units_sold }}</td>
+                                <td style="font-size: 12px;">{{ r.revenue }}</td>
+                                <td style="font-size: 12px;">{{ r.customer_segment }}</td>
+                                <td style="font-size: 12px;">{{ r.region }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Wizard Steps Action Bar -->
+    <div class="card-custom mt-4 d-flex justify-content-between align-items-center">
+        <a href="{{ url_for('transformation.details', uuid=dataset.uuid) }}" class="btn-custom btn-custom-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Transformation
+        </a>
+        <a href="{{ url_for('analytics.details', uuid=dataset.uuid) }}" class="btn-custom btn-custom-primary">
+            Run Analytics Engine <i class="bi bi-arrow-right"></i>
+        </a>
+    </div>
+</div>
+{% endblock %}

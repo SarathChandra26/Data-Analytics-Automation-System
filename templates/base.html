@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DA Automation System (DAAS) - {% block title %}Enterprise Data Analytics Automation{% endblock %}</title>
+    
+    <!-- Bootstrap 5 CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    
+    <!-- Bootstrap Icons CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
+    
+    <!-- Design System CSS Stack -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/variables.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/layout.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/cards.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tables.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/forms.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/buttons.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/animations.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <a href="{{ url_for('dashboard.index') }}" class="sidebar-brand-link">
+                    <i class="bi bi-cpu-fill"></i>
+                    <span>DA Automation System (DAAS)</span>
+                </a>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-section-title">Navigation</div>
+                <ul class="sidebar-nav-list">
+                    <li>
+                        <a href="{{ url_for('dashboard.index') }}" class="sidebar-nav-item-link {% if request.endpoint == 'dashboard.index' %}active{% endif %}">
+                            <i class="bi bi-grid-1x2-fill"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('upload.index') }}" class="sidebar-nav-item-link {% if request.endpoint == 'upload.index' %}active{% endif %}">
+                            <i class="bi bi-cloud-arrow-up-fill"></i>
+                            <span>Dataset Upload</span>
+                        </a>
+                    </li>
+                </ul>
+                
+                <div class="nav-section-title">Pipeline Stages</div>
+                <ul class="sidebar-nav-list">
+                    <li>
+                        <a href="{{ url_for('validation.details', uuid=sidebar_dataset.uuid) if sidebar_dataset else '#' }}"
+                           class="sidebar-nav-item-link {% if not sidebar_dataset %}disabled text-muted-custom{% endif %} {% if request.endpoint == 'validation.details' %}active{% endif %}">
+                            <i class="bi bi-check-square-fill"></i>
+                            <span>Validation</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('cleaning.details', uuid=sidebar_dataset.uuid) if sidebar_dataset else '#' }}"
+                           class="sidebar-nav-item-link {% if not sidebar_dataset %}disabled text-muted-custom{% endif %} {% if request.endpoint == 'cleaning.details' %}active{% endif %}">
+                            <i class="bi bi-stars"></i>
+                            <span>Cleaning</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('transformation.details', uuid=sidebar_dataset.uuid) if sidebar_dataset else '#' }}"
+                           class="sidebar-nav-item-link {% if not sidebar_dataset %}disabled text-muted-custom{% endif %} {% if request.endpoint == 'transformation.details' %}active{% endif %}">
+                            <i class="bi bi-arrow-left-right"></i>
+                            <span>Transformation</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('database.details', uuid=sidebar_dataset.uuid) if sidebar_dataset else '#' }}"
+                           class="sidebar-nav-item-link {% if not sidebar_dataset %}disabled text-muted-custom{% endif %} {% if request.endpoint == 'database.details' %}active{% endif %}">
+                            <i class="bi bi-database-fill-gear"></i>
+                            <span>Database</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('analytics.details', uuid=sidebar_dataset.uuid) if sidebar_dataset else '#' }}"
+                           class="sidebar-nav-item-link {% if not sidebar_dataset %}disabled text-muted-custom{% endif %} {% if request.endpoint == 'analytics.details' %}active{% endif %}">
+                            <i class="bi bi-bar-chart-fill"></i>
+                            <span>Analytics</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('charts.details', uuid=sidebar_dataset.uuid) if sidebar_dataset else '#' }}"
+                           class="sidebar-nav-item-link {% if not sidebar_dataset %}disabled text-muted-custom{% endif %} {% if request.endpoint == 'charts.details' %}active{% endif %}">
+                            <i class="bi bi-pie-chart-fill"></i>
+                            <span>Charts</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('reports.details', uuid=sidebar_dataset.uuid) if sidebar_dataset else '#' }}"
+                           class="sidebar-nav-item-link {% if not sidebar_dataset %}disabled text-muted-custom{% endif %} {% if request.endpoint == 'reports.details' %}active{% endif %}">
+                            <i class="bi bi-file-earmark-bar-graph-fill"></i>
+                            <span>Reports</span>
+                        </a>
+                    </li>
+                </ul>
+                
+                <div class="nav-section-title">System</div>
+                <ul class="sidebar-nav-list">
+                    <li>
+                        <a href="{{ url_for('logs.index') }}" class="sidebar-nav-item-link {% if request.endpoint == 'logs.index' %}active{% endif %}">
+                            <i class="bi bi-journal-text"></i>
+                            <span>Logs</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="sidebar-nav-item-link disabled text-muted-custom">
+                            <i class="bi bi-gear-fill"></i>
+                            <span>Settings</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Layout Section -->
+        <div class="main-wrapper">
+            <header class="top-header">
+                <div class="header-title-area">
+                    <button class="btn btn-dark d-lg-none me-2" id="sidebarToggleBtn">
+                        <i class="bi bi-list"></i>
+                    </button>
+                    <div>
+                        <h4 class="m-0">{% block header_title %}DA Automation System (DAAS) Dashboard{% endblock %}</h4>
+                        <span class="header-subtitle">{% block header_subtitle %}Automated Enterprise Data Analysis Pipeline{% endblock %}</span>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <span class="badge bg-dark border border-secondary text-secondary-custom px-3 py-2 d-none d-sm-inline-block">
+                        <i class="bi bi-database-fill me-1 text-primary"></i> SQLite Storage Connected
+                    </span>
+                </div>
+            </header>
+
+            <main class="main-content fade-in">
+                <!-- Flashed Messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                  {% if messages %}
+                    {% for category, message in messages %}
+                      <div class="alert alert-{% if category == 'error' %}danger{% else %}{{ category }}{% endif %} alert-dismissible fade show border-secondary bg-dark text-light mb-4" role="alert">
+                        <strong>{{ category.title() }}:</strong> {{ message }}
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+                      </div>
+                    {% endfor %}
+                  {% endif %}
+                {% endwith %}
+
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 Toast Container for UI micro-notifications -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1055;">
+        <div id="statusToast" class="toast bg-dark text-white border border-secondary" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header bg-secondary text-white border-bottom border-dark">
+                <i class="bi bi-cpu-fill text-primary me-2"></i>
+                <strong class="me-auto" id="toastTitle">System Notification</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body" id="toastMessage">
+                Notification content here.
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6Rz8ynS7ogEvDej/m4gW3F2FElFTscR9MyYoNHzV9715GLTkLpdg8K71ZHSjVg" crossorigin="anonymous"></script>
+    
+    <!-- Global Script Handling Sidebar for Responsive View and Toasts -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.querySelector('.sidebar');
+            const sidebarToggle = document.getElementById('sidebarToggleBtn');
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('show');
+                });
+            }
+
+            // Custom Toast helper
+            window.showNotification = function(title, message, isSuccess = true) {
+                const toastEl = document.getElementById('statusToast');
+                const titleEl = document.getElementById('toastTitle');
+                const messageEl = document.getElementById('toastMessage');
+                
+                titleEl.textContent = title;
+                messageEl.textContent = message;
+                
+                const icon = toastEl.querySelector('.toast-header i');
+                if (isSuccess) {
+                    icon.className = 'bi bi-check-circle-fill text-success me-2';
+                } else {
+                    icon.className = 'bi bi-exclamation-triangle-fill text-danger me-2';
+                }
+
+                const toast = new bootstrap.Toast(toastEl);
+                toast.show();
+            };
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

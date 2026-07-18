@@ -1,0 +1,37 @@
+{
+    "charts": [
+        {
+            "type": "bar",
+            "title": "Revenue by Category",
+            "png": "bar_chart.png",
+            "html": "bar_chart.html"
+        },
+        {
+            "type": "line",
+            "title": "Monthly Revenue Trend",
+            "png": "line_chart.png",
+            "html": "line_chart.html"
+        },
+        {
+            "type": "pie",
+            "title": "Category Composition",
+            "png": "pie_chart.png",
+            "html": "pie_chart.html"
+        },
+        {
+            "type": "histogram",
+            "title": "Distribution of Revenue",
+            "png": "histogram.png",
+            "html": "histogram.html"
+        },
+        {
+            "type": "box_plot",
+            "title": "Box Plot: Revenue",
+            "png": "box_plot.png",
+            "html": "box_plot.html"
+        }
+    ],
+    "chart_dir": "E:\\DataFlowAI\\charts\\sales_test_7b9cbd1d",
+    "chart_folder": "sales_test_7b9cbd1d",
+    "generated_at": "2026-07-18 19:39:25"
+}

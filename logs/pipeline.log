@@ -1,0 +1,30 @@
+[2026-07-19 00:58:39,634] INFO [pipeline:db_service.py:130] - Dataset registered: sales_test (sales_test.csv), UUID: f98a2636-2160-4360-9969-056f7c273cea
+[2026-07-19 00:58:57,190] INFO [pipeline:db_service.py:179] - Stage Validation updated to Running
+[2026-07-19 00:58:57,215] ERROR [pipeline:db_service.py:176] - Stage Validation updated to Failed. Error: Missing required columns: Transaction_ID
+[2026-07-19 01:08:50,824] INFO [pipeline:db_service.py:130] - Dataset registered: sales_test (sales_test.csv), UUID: 7b9cbd1d-71b4-4386-89a6-6f77018386d4
+[2026-07-19 01:09:00,842] INFO [pipeline:db_service.py:179] - Stage Validation updated to Running
+[2026-07-19 01:09:00,878] INFO [pipeline:db_service.py:179] - Stage Validation updated to Completed
+[2026-07-19 01:09:05,409] INFO [pipeline:db_service.py:179] - Stage Cleaning updated to Running
+[2026-07-19 01:09:05,457] INFO [pipeline:db_service.py:179] - Stage Cleaning updated to Completed
+[2026-07-19 01:09:05,463] INFO [pipeline:cleaning_service.py:164] - Data cleaning completed. Rows: 10 -> 10. Empty rows removed: 0. Duplicates removed: 0. Nulls filled: 0.
+[2026-07-19 01:09:09,928] INFO [pipeline:db_service.py:179] - Stage Transformation updated to Running
+[2026-07-19 01:09:09,975] INFO [pipeline:db_service.py:179] - Stage Transformation updated to Completed
+[2026-07-19 01:09:09,981] INFO [pipeline:transformation_service.py:175] - Data transformation completed. 8 new column(s) created, 17 total columns.
+[2026-07-19 01:09:13,648] INFO [pipeline:db_service.py:179] - Stage Database updated to Running
+[2026-07-19 01:09:13,680] INFO [pipeline:db_service.py:179] - Stage Database updated to Completed
+[2026-07-19 01:09:13,688] INFO [pipeline:database_service.py:118] - Loaded 10 record(s) into 'analytics_data' table from Transformation output (17 columns).
+[2026-07-19 01:09:17,093] INFO [pipeline:db_service.py:179] - Stage Analytics updated to Running
+[2026-07-19 01:09:17,126] INFO [pipeline:db_service.py:179] - Stage Analytics updated to Completed
+[2026-07-19 01:09:17,130] INFO [pipeline:analytics_service.py:208] - Analytics engine computed 7 numeric summaries, 2 top categories, 1 monthly points.
+[2026-07-19 01:09:23,919] INFO [pipeline:db_service.py:179] - Stage Visualization updated to Running
+[2026-07-19 01:09:25,472] INFO [pipeline:db_service.py:179] - Stage Visualization updated to Completed
+[2026-07-19 01:09:25,476] INFO [pipeline:visualization_service.py:238] - Visualization engine generated 5 chart(s) in 'sales_test_7b9cbd1d'.
+[2026-07-19 01:09:33,390] INFO [pipeline:db_service.py:179] - Stage Excel_Report updated to Running
+[2026-07-19 01:09:33,477] INFO [pipeline:db_service.py:179] - Stage Excel_Report updated to Completed
+[2026-07-19 01:09:33,482] INFO [pipeline:reporting_service.py:244] - Excel report generated with 9 sheet(s) at 'E:\DataFlowAI\reports\2026\sales_test_7b9cbd1d\report.xlsx'.
+[2026-07-19 01:09:33,499] INFO [pipeline:db_service.py:179] - Stage PDF_Report updated to Running
+[2026-07-19 01:09:33,712] INFO [pipeline:db_service.py:179] - Stage PDF_Report updated to Completed
+[2026-07-19 01:09:33,718] INFO [pipeline:reporting_service.py:363] - PDF report generated at 'E:\DataFlowAI\reports\2026\sales_test_7b9cbd1d\report.pdf'.
+[2026-07-19 01:09:33,732] INFO [pipeline:db_service.py:179] - Stage Archive updated to Running
+[2026-07-19 01:09:33,757] INFO [pipeline:db_service.py:179] - Stage Archive updated to Completed
+[2026-07-19 01:09:33,763] INFO [pipeline:reporting_service.py:423] - Dataset archived to 'E:\DataFlowAI\uploads\archive\7b9cbd1d-71b4-4386-89a6-6f77018386d4\sales_test.csv'. Pipeline run complete.

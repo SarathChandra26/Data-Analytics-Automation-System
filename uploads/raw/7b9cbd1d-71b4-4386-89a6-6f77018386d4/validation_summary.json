@@ -1,0 +1,28 @@
+{
+    "timestamp": "2026-07-18 19:39:00",
+    "dataset_uuid": "7b9cbd1d-71b4-4386-89a6-6f77018386d4",
+    "status": "Completed",
+    "missing_required_columns": [],
+    "duplicate_id_details": [],
+    "null_counts": {},
+    "invalid_types": {},
+    "errors": [],
+    "warnings": [],
+    "rows": 10,
+    "columns": 9,
+    "duplicate_rows": 0,
+    "missing_values": 0,
+    "numeric_columns": [
+        "Order_ID",
+        "Quantity",
+        "Unit_Price",
+        "Revenue"
+    ],
+    "categorical_columns": [
+        "Date",
+        "Customer",
+        "Product",
+        "Category",
+        "Region"
+    ]
+}
